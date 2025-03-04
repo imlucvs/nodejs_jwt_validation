@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f9;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .status {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+    .logged-in {
+      color: green;
+    }
+    .not-logged-in {
+      color: red;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dashboard</h1>
+    <div class="status" id="status">Carregando...</div>
+    <button id="logoutButton">Logout</button>
+    <br>
+    <a href="/">Login</a>
+  </div>
+
+  <script>
+    async function checkAuth() {
+      const token = localStorage.getItem('jweToken');
+      if (!token) {
+        updateStatus('Not logged in', 'not-logged-in');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3000/verify-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+      if (result.authenticated) {
+        updateStatus(`Logged in as ${result.user.username}`, 'logged-in');
+      } else {
+        updateStatus('Not logged in', 'not-logged-in');
+      }
+    }
+
+    function updateStatus(message, className) {
+      const statusElement = document.getElementById('status');
+      statusElement.textContent = message;
+      statusElement.className = `status ${className}`;
+    }
+
+    function logout() {
+      localStorage.removeItem('jweToken');
+      updateStatus('Not logged in', 'not-logged-in');
+    }
+
+    document.getElementById('logoutButton').addEventListener('click', logout);
+
+    document.addEventListener('DOMContentLoaded', checkAuth);
+  </script>
+</body>
+</html>
