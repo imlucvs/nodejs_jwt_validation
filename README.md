@@ -1,4 +1,4 @@
-# Node.js JWE Verification
+# Node.js JWT Verification
 
 ### Setup
 1 - npm install express jose cors body-parser <br>
